@@ -1,0 +1,32 @@
+pipeline {
+    agent {
+      docker {
+        image 'golang:1.25.4'
+      }
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+                sh 'go build -o main main.go'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'always...'
+        }
+        success {
+            echo 'success...'
+        }
+        failure {
+            echo 'failure...'
+        }
+        unstable {
+            echo 'unstable...'
+        }
+        changed {
+            echo 'changed...'
+        }
+    }
+}
