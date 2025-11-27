@@ -1,13 +1,14 @@
 pipeline {
     agent {
       docker {
-        image 'golang:1.25.4'
+        image 'golang:1.25.4-alpine'
       }
     }
     stages {
         stage('Build') {
             steps {
                 echo 'Building...'
+                sh 'go mod tidy'
                 sh 'go build -o main main.go'
             }
         }
