@@ -33,6 +33,9 @@ pipeline {
             steps {
                 script {
                     sh """
+                        echo "Building and Pushing Docker Image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                        echo ""
+                        
                         docker buildx build \
                             --platform ${BUILD_PLATFORM} \
                             -t ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
