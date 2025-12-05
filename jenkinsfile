@@ -6,8 +6,8 @@ pipeline {
         REGISTRY       = "registry.cn-hangzhou.aliyuncs.com/jingansi"
         // 镜像名称
         IMAGE_NAME     = "jenkins-demo"
-        // 使用 Git 提交号作为 tag（或改成 BUILD_NUMBER 等）
-        IMAGE_TAG      = "${env.BUILD_NUMBER}"
+        // 使用 Git Tag + Git Commit 作为镜像版本号
+        IMAGE_TAG      = "${GIT_TAG}-${GIT_COMMIT}"
         // 凭据 ID（在 Jenkins -> Credentials 配置）
         DOCKER_CRED_ID = "public-aliyun-registry"
         // 构建平台
