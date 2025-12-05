@@ -1,19 +1,50 @@
 pipeline {
-    agent { 
-      docker {
-         image 'golang:1.25.4-alpine3.22'
-          args '-u root'
-        }
+    agent any
+    
+    environment {
+        // 你自己的镜像仓库地址
+        REGISTRY       = "registry.cn-hangzhou.aliyuncs.com/jingansi"
+        // 镜像名称
+        IMAGE_NAME     = "jenkins-demo"
+        // 使用 Git 提交号作为 tag（或改成 BUILD_NUMBER 等）
+        IMAGE_TAG      = "${env.BUILD_NUMBER}"
+        // 凭据 ID（在 Jenkins -> Credentials 配置）
+        DOCKER_CRED_ID = "public-aliyun-registry"
+        // 构建平台
+        BUILD_PLATFORM = "linux/amd64"
     }
+
     stages {
-        stage('Build') {
+        stage('Docker Login') {
             steps {
-                echo 'Building...'
-                sh 'go mod tidy'
-                sh 'go build -o main main.go'
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: "${DOCKER_CRED_ID}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo ${DOCKER_PASS} | docker login ${REGISTRY} -u ${DOCKER_USER} --password-stdin"
+                    }
+                }
+            }
+        }
+
+        stage('Build and Push') {
+            steps {
+                script {
+                    sh """
+                        docker buildx build \
+                            --platform ${BUILD_PLATFORM} \
+                            -t ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
+                            -t ${REGISTRY}/${IMAGE_NAME}:latest \
+                            --push \
+                            .
+                    """
+                }
             }
         }
     }
+
     post {
         always {
             echo 'always...'
